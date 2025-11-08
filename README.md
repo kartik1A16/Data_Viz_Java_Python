@@ -1,6 +1,6 @@
 # Data Processing and Visualization Project
 
-## Detailed Code Explanation
+## Code Explanation
 
 ### Java Components
 
