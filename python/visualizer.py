@@ -1,39 +1,96 @@
+import sys
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-import sys, os
+import plotly.express as px
 
-# Read file path from Java argument
-input_path = sys.argv[1]
+# --- Setup ---
+if len(sys.argv) < 2:
+    print("Usage: python visualizer.py <csv_path>")
+    sys.exit(1)
+
+csv_path = sys.argv[1]
 output_dir = "output/charts"
 os.makedirs(output_dir, exist_ok=True)
 
-print("Loading data for visualization...")
-df = pd.read_csv(input_path)
+print(f"Reading cleaned data from: {csv_path}")
+df = pd.read_csv(csv_path)
 
-# Basic stats
-desc = df.describe(include='all')
-desc.to_csv("output/stats.txt")
-print("Saved summary stats to output/stats.txt")
+# --- Column detection ---
+numeric_cols = df.select_dtypes(include=['int64', 'float64']).columns.tolist()
+categorical_cols = df.select_dtypes(include=['object']).columns.tolist()
 
-# Line Plot
-sns.lineplot(data=df.select_dtypes('number'))
-plt.title("Numeric Columns Line Plot")
-plt.savefig(f"{output_dir}/line_plot.png")
-plt.close()
+# --- 1️⃣ Histogram for numeric columns ---
+for col in numeric_cols:
+    plt.figure(figsize=(6, 4))
+    sns.histplot(df[col], kde=True, color='skyblue')
+    plt.title(f'Distribution of {col}')
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/{col}_hist.png")
+    plt.close()
 
-# Scatter Matrix
-sns.pairplot(df.select_dtypes('number'))
-plt.savefig(f"{output_dir}/scatter_matrix.png")
-plt.close()
+# --- 2️⃣ Boxplot for numeric columns ---
+for col in numeric_cols:
+    plt.figure(figsize=(4, 5))
+    sns.boxplot(y=df[col], color='lightcoral')
+    plt.title(f'{col} Boxplot')
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/{col}_box.png")
+    plt.close()
 
-# Bar Chart (if categorical columns exist)
-for col in df.select_dtypes('object').columns:
-    plt.figure()
-    df[col].value_counts().plot(kind='bar')
-    plt.title(f"Distribution of {col}")
+# --- 3️⃣ Correlation heatmap ---
+if len(numeric_cols) > 1:
+    plt.figure(figsize=(6, 5))
+    sns.heatmap(df[numeric_cols].corr(), annot=True, cmap='coolwarm', fmt=".2f")
+    plt.title('Correlation Heatmap')
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/correlation_heatmap.png")
+    plt.close()
+
+# --- 4️⃣ Bar charts for categorical columns ---
+for col in categorical_cols:
+    plt.figure(figsize=(6, 4))
+    df[col].value_counts().plot(kind='bar', color='mediumseagreen')
+    plt.title(f'Frequency of {col}')
+    plt.xlabel(col)
+    plt.ylabel('Count')
     plt.tight_layout()
     plt.savefig(f"{output_dir}/{col}_bar.png")
     plt.close()
 
-print("Charts saved in 'output/charts/'.")
+# --- 5️⃣ Scatter plots for pairs of numeric columns ---
+if len(numeric_cols) >= 2:
+    for i in range(len(numeric_cols)):
+        for j in range(i + 1, len(numeric_cols)):
+            x, y = numeric_cols[i], numeric_cols[j]
+            plt.figure(figsize=(6, 5))
+            sns.scatterplot(x=df[x], y=df[y], hue=df[categorical_cols[0]] if categorical_cols else None)
+            plt.title(f'{y} vs {x}')
+            plt.tight_layout()
+            plt.savefig(f"{output_dir}/scatter_{x}_vs_{y}.png")
+            plt.close()
+
+# --- Line plot for numeric trend (just first few numeric columns) ---
+if len(numeric_cols) >= 2:
+    plt.figure(figsize=(8, 5))
+    for col in numeric_cols:
+        plt.plot(df[col], label=col)
+    plt.title('Numeric Trends')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/line_trend.png")
+    plt.close()
+
+# --- Pie chart for categorical distribution (first category) ---
+if categorical_cols:
+    first_cat = categorical_cols[0]
+    plt.figure(figsize=(6, 6))
+    df[first_cat].value_counts().plot.pie(autopct='%1.1f%%', colors=sns.color_palette('pastel'))
+    plt.title(f'{first_cat} Distribution')
+    plt.ylabel('')
+    plt.tight_layout()
+    plt.savefig(f"{output_dir}/{first_cat}_pie.png")
+    plt.close()
+
+print(f"All charts saved in '{output_dir}'")
