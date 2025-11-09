@@ -1,31 +1,33 @@
-
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 public class Main {
-    public static void main(String[] args) throws Exception {
-        String inputPath = "data/sample.csv";
-        String cleanedPath = "data/cleaned.csv";
+    public static void main(String[] args) {
+        try {
+            String inputPath = args.length > 0 ? args[0] : "data/sample.csv";
+            String cleanedPath = "output/cleaned.csv";
 
-        CsvImporter importer = new CsvImporter();
-        DataCleaner cleaner = new DataCleaner();
-        Exporter exporter = new Exporter();
+            System.out.println("Importing data...");
+            CsvImporter importer = new CsvImporter();
+            List<Map<String, String>> data = importer.importCsv(inputPath);
 
-        System.out.println("Importing data...");
-        List<Map<String, Object>> data = importer.importCsv(inputPath);
+            System.out.println("Cleaning data...");
+            DataCleaner cleaner = new DataCleaner();
+            List<Map<String, String>> cleanedData = cleaner.cleanData(data);
 
-        System.out.println("Cleaning data...");
-        List<Map<String, Object>> cleaned = cleaner.cleanData(data);
+            System.out.println("Exporting cleaned data...");
+            Exporter exporter = new Exporter();
+            exporter.exportCsv(cleanedData, cleanedPath);
 
-        System.out.println("Exporting cleaned data...");
-        exporter.exportCsv(cleaned, cleanedPath);
+            System.out.println("Launching Python visualization...");
+            ProcessBuilder pb = new ProcessBuilder("python", "python/visualizer.py", cleanedPath);
+            pb.inheritIO();
+            Process p = pb.start();
+            p.waitFor();
 
-        System.out.println("Running Python visualization...");
-        ProcessBuilder pb = new ProcessBuilder("python", "python/visualizer.py", cleanedPath);
-        pb.inheritIO();
-        Process process = pb.start();
-        process.waitFor();
-
-        System.out.println("Visualization complete! Check 'output/charts/' folder.");
+            System.out.println("Data processing complete!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
