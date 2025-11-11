@@ -1,0 +1,45 @@
+Column: Salary
+  count      : 76.000
+  mean       : 83500.000
+  median     : 87000.000
+  mode       : 70000.000
+  min        : 68000.000
+  max        : 95000.000
+  std_dev    : 9893.512
+
+Column: Experience
+  count      : 76.000
+  mean       : 4.329
+  median     : 4.000
+  mode       : 6.000
+  min        : 2.000
+  max        : 7.000
+  std_dev    : 1.576
+
+Column: Projects
+  count      : 76.000
+  mean       : 5.803
+  median     : 6.000
+  mode       : 6.000
+  min        : 2.000
+  max        : 9.000
+  std_dev    : 1.899
+
+Column: Performance
+  count      : 76.000
+  mean       : 8.604
+  median     : 8.800
+  mode       : 8.900
+  min        : 7.500
+  max        : 9.400
+  std_dev    : 0.557
+
+Column: Age
+  count      : 76.000
+  mean       : 28.908
+  median     : 29.000
+  mode       : 30.000
+  min        : 23.000
+  max        : 34.000
+  std_dev    : 3.053
+

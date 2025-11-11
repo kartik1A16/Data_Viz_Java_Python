@@ -19,6 +19,15 @@ public class Main {
             Exporter exporter = new Exporter();
             exporter.exportCsv(cleanedData, cleanedPath);
 
+            System.out.println("Computing statistics...");
+            List<Map<String, Object>> objectData = new ArrayList<>();
+            for (Map<String, String> row : cleanedData) {
+                objectData.add(new HashMap<>(row));
+            }
+            StatsCalculator statsCalc = new StatsCalculator();
+            Map<String, Map<String, Double>> stats = statsCalc.computeStats(objectData);
+            statsCalc.saveStatsToFile(stats, "output/stats.txt");
+
             System.out.println("Launching Python visualization...");
             ProcessBuilder pb = new ProcessBuilder("python", "python/visualizer.py", cleanedPath);
             pb.inheritIO();
