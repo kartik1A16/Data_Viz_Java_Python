@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 
-# Setup
+# Setup of file
 if len(sys.argv) < 2:
     print("Usage: python visualizer.py <csv_path>")
     sys.exit(1)
